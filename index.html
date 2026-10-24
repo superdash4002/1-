@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초보안 동적 1진수 암호화 시스템</title>
+<style>
+    :root {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --accent: #238636;
+    --accent-hover: #2ea043;
+    --text: #c9d1d9;
+    --border: #30363d;
+}
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+    .container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 30px;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+    h1 {
+    text-align: center;
+    color: #58a6ff;
+    margin-top: 0;
+    font-size: 1.8rem;
+}
+    .group {
+    margin-bottom: 20px;
+}
+    label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+    textarea {
+    width: 100%;
+    height: 100px;
+    background-color: #010409;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: #ff7b72;
+    padding: 10px;
+    box-sizing: border-box;
+    resize: vertical;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+}
+    .btn-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+    button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+    .btn-enc { background-color: var(--accent); color: white; }
+    .btn-enc:hover { background-color: var(--accent-hover); }
+    .btn-dec { background-color: #1f6feb; color: white; }
+    .btn-dec:hover { background-color: #388bfd; }
+
+    .result-box {
+    position: relative;
+}
+    .result-area {
+    color: #7ee787 !important;
+    padding-right: 70px;
+}
+    .btn-copy {
+    position: absolute;
+    right: 8px;
+    top: 32px;
+    background-color: #21262d;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+}
+    .btn-copy:hover {
+    background-color: #30363d;
+}
+    .info {
+    font-size: 0.8rem;
+    color: #8b949e;
+    text-align: center;
+    margin-top: 15px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 난독화 동적 1진수 암호화기</h1>
+
+    <div class="group">
+        <label for="inputData">입력 데이터 (평문 또는 암호문)</label>
+        <textarea id="inputData" placeholder="여기에 변환할 텍스트를 입력하세요..."></textarea>
+    </div>
+
+    <div class="btn-box">
+        <button class="btn-enc" onclick="processEncrypt()">🚀 1진수 암호화 가즈아!</button>
+        <button class="btn-dec" onclick="processDecrypt()">🔓 복호화 가즈아!</button>
+    </div>
+
+    <div class="group result-box">
+        <label for="outputData">변환 결과</label>
+        <button class="btn-copy" onclick="copyToClipboard()">📋 복사</button>
+        <textarea id="outputData" class="result-area" readonly placeholder="결과가 여기에 출력됩니다..."></textarea>
+    </div>
+
+    <div class="info">작동 원리: 글자별 무작위 마스터 키 자동 선정 + 실시간 1진수 카운팅 연산</div>
+</div>
+
+<script>
+    const CHAR_POOL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@!$%^&*()_+=-{}|;:',.<>?";
+
+    function getRandomChar() {
+        return CHAR_POOL[Math.floor(Math.random() * CHAR_POOL.length)];
+    }
+
+    // 1. 암호화 로직 (기존 C++ 알고리즘 완벽 이식)
+    function encryptPureUnary(text) {
+        if (!text) return "";
+        let result = [];
+
+        for (let i = 0; i < text.length; i++) {
+        let asciiValue = text.charCodeAt(i);
+        let roomKey = getRandomChar();
+        let room = roomKey;
+        let count = 0;
+
+        while (count < asciiValue) {
+        if (Math.random() > 0.5) {
+        room += roomKey;
+        count++;
+    } else {
+        let dummy = getRandomChar();
+        while (dummy === roomKey) {
+        dummy = getRandomChar();
+    }
+        room += dummy;
+    }
+    }
+        result.push(room);
+    }
+        return result.join(" ");
+    }
+
+    // 2. 복호화 로직
+    function decryptPureUnary(cipherText) {
+        if (!cipherText) return "";
+        let rooms = cipherText.trim().split(" ");
+        let result = "";
+
+        for (let room of rooms) {
+        if (!room) continue;
+        let roomKey = room[0];
+        let realCount = 0;
+
+        for (let i = 1; i < room.length; i++) {
+        if (room[i] === roomKey) {
+        realCount++;
+    }
+    }
+        result += String.fromCharCode(realCount);
+    }
+        return result;
+    }
+
+    // UI 핸들러
+    function processEncrypt() {
+        const input = document.getElementById("inputData").value;
+        const encrypted = encryptPureUnary(input);
+        document.getElementById("outputData").value = encrypted;
+    }
+
+    function processText(action) {
+        const input = document.getElementById("inputData").value;
+        const outputField = document.getElementById("outputData");
+        outputField.value = action === 'enc' ? encryptPureUnary(input) : decryptPureUnary(input);
+    }
+
+    function processDecrypt() { processText('dec'); }
+
+    // 클립보드 복사 기능
+    function copyToClipboard() {
+        const outputData = document.getElementById("outputData");
+        if (!outputData.value) {
+        alert("복사할 결과 데이터가 없습니다!");
+        return;
+    }
+
+        outputData.select();
+        outputData.setSelectionRange(0, 99999); // 모바일 대응
+
+        navigator.clipboard.writeText(outputData.value)
+        .then(() => {
+        alert("📋 암호화 결과가 클립보드에 복사되었습니다!");
+    })
+        .catch(err => {
+        alert("복사에 실패했습니다: " + err);
+    });
+    }
+</script>
+
+</body>
+</html>
